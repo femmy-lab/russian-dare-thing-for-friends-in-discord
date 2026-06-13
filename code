@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Odd Word Russian Translator</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+textarea{
+    width: 100%;
+    height: 120px;
+    font-size: 18px;
+}
+
+button{
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 18px;
+}
+
+#output{
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    padding: 15px;
+    min-height: 50px;
+    white-space: pre-wrap;
+}
+</style>
+</head>
+<body>
+
+<h1>Odd Word Russian Translator</h1>
+
+<textarea id="input" placeholder="Type English here..."></textarea>
+<br>
+<button onclick="translateSentence()">Translate</button>
+
+<div id="output"></div>
+
+<script>
+async function translateWord(word) {
+    try {
+        const response = await fetch(
+            "https://translate.argosopentech.com/translate",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    q: word,
+                    source: "en",
+                    target: "ru"
+                })
+            }
+        );
+
+        const data = await response.json();
+        return data.translatedText || word;
+    } catch {
+        return word;
+    }
+}
+
+async function translateSentence() {
+    const input = document.getElementById("input").value.trim();
+
+    if (!input) {
+        document.getElementById("output").textContent = "";
+        return;
+    }
+
+    const words = input.split(/\s+/);
+
+    const result = [];
+
+    for (let i = 0; i < words.length; i++) {
+
+        // 1st, 3rd, 5th words become Russian
+        if (i % 2 === 0) {
+            result.push(await translateWord(words[i]));
+        } else {
+            result.push(words[i]);
+        }
+    }
+
+    document.getElementById("output").textContent =
+        result.join(" ");
+}
+</script>
+
+</body>
+</html>
